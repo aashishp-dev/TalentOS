@@ -1,0 +1,25 @@
+# Python
+.venv/
+venv/
+backend/venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# Large datasets
+dataset/
+*.jsonl
+submission.csv
+
+# Next.js
+.next/
+out/
