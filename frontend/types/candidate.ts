@@ -1,12 +1,13 @@
 export interface Candidate {
   candidate_id: string;
+
   rank: number;
+
   score: number;
+
   reasoning: string;
 
   confidence: number;
-
-  skills: string[];
 
   breakdown: {
     skill: number;
@@ -23,4 +24,16 @@ export interface Candidate {
     open_to_work: boolean;
     notice: number;
   };
+
+  skills: string[];
+}
+
+export interface RankingResponse {
+  summary: {
+    total_candidates: number;
+    average_score: number;
+    top_score: number;
+  };
+
+  candidates: Candidate[];
 }
