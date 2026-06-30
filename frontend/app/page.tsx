@@ -2,81 +2,104 @@
 
 import { useEffect, useState } from "react";
 
-import Header from "@/components/Header";
+import AppShell from "@/components/AppShell";
 import StatsCards from "@/components/StatsCards";
+import ScoreChart from "@/components/ScoreChart";
 import CandidateTable from "@/components/CandidateTable";
 import CandidateDetails from "@/components/CandidateDetails";
-import ScoreChart from "@/components/ScoreChart";
+import PipelineDiagram from "@/components/PipelineDiagram";
+import ActivityFeed from "@/components/ActivityFeed";
+import ConfidenceGauge from "@/components/ConfidenceGauge";
 
-import { getCandidates } from "@/lib/api";
-
+import { getRanking } from "@/services/ranking";
 import { Candidate } from "@/types/candidate";
 
+interface Summary {
+  total_candidates: number;
+  average_score: number;
+  top_score: number;
+}
+
 export default function Home() {
-
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [selected, setSelected] = useState<Candidate | null>(null);
 
-  const [selected, setSelected] =
-    useState<Candidate | null>(null);
+  const [summary, setSummary] = useState<Summary>({
+    total_candidates: 0,
+    average_score: 0,
+    top_score: 0,
+  });
 
   useEffect(() => {
+    const loadCandidates = async () => {
+      try {
+        const response = await getRanking();
 
-    async function load() {
+        setCandidates(response.candidates ?? []);
 
-      const data = await getCandidates();
+        setSummary(
+          response.summary ?? {
+            total_candidates: 0,
+            average_score: 0,
+            top_score: 0,
+          }
+        );
 
-      setCandidates(data);
-
-      if (data.length) {
-
-        setSelected(data[0]);
-
+        if (
+          response.candidates &&
+          response.candidates.length > 0
+        ) {
+          setSelected(response.candidates[0]);
+        }
+      } catch (error) {
+        console.error("Failed to load ranking:", error);
       }
+    };
 
-    }
-
-    load();
-
+    loadCandidates();
   }, []);
 
   return (
+    <AppShell>
+      <div className="space-y-8">
 
-    <main className="min-h-screen bg-slate-950 text-white">
+        <StatsCards summary={summary} />
 
-      <Header/>
-
-      <section className="p-10">
-
-        <StatsCards/>
-
-        <div className="mt-10">
-
-          <CandidateTable
-
-            candidates={candidates}
-
-            selected={selected}
-
-            onSelect={setSelected}
-
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ScoreChart
+            breakdown={selected?.breakdown}
           />
 
+          <PipelineDiagram />
         </div>
 
-        <div className="grid grid-cols-2 gap-8 mt-10">
+        <div className="grid gap-6 xl:grid-cols-3">
+
+          <div className="xl:col-span-2">
+            <CandidateTable
+              candidates={candidates}
+              selected={selected}
+              onSelect={setSelected}
+            />
+          </div>
 
           <CandidateDetails
             candidate={selected}
           />
 
-          <ScoreChart/>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+
+          <ConfidenceGauge
+            value={selected?.confidence ?? 0}
+          />
+
+          <ActivityFeed />
 
         </div>
 
-      </section>
-
-    </main>
-
+      </div>
+    </AppShell>
   );
-
 }

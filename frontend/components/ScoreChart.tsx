@@ -1,53 +1,117 @@
-export default function ScoreChart() {
+"use client";
+
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  ResponsiveContainer,
+  Radar as RadarShape,
+} from "recharts";
+
+import { motion } from "framer-motion";
+
+interface Props {
+  breakdown?: {
+    skill: number;
+    career: number;
+    behavior: number;
+    semantic: number;
+  };
+}
+
+export default function ScoreChart({
+  breakdown,
+}: Props) {
+
+  const data = [
+    {
+      subject: "Skill",
+      score: breakdown?.skill ?? 0,
+    },
+    {
+      subject: "Career",
+      score: breakdown?.career ?? 0,
+    },
+    {
+      subject: "Behavior",
+      score: breakdown?.behavior ?? 0,
+    },
+    {
+      subject: "Semantic",
+      score: breakdown?.semantic ?? 0,
+    },
+  ];
+
+  const overall = breakdown
+    ? (
+        breakdown.skill +
+        breakdown.career +
+        breakdown.behavior +
+        breakdown.semantic
+      ) / 4
+    : 0;
 
   return (
+    <motion.div
+      initial={{ opacity: 0, y: 25 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 backdrop-blur-xl shadow-xl"
+    >
+      <div className="flex items-center justify-between mb-6">
 
-    <div className="bg-slate-900 rounded-2xl p-6">
+        <div>
+          <h2 className="text-2xl font-bold">
+            AI Score Breakdown
+          </h2>
 
-      <h2 className="text-xl font-bold mb-6">
+          <p className="text-slate-400">
+            Live backend scoring
+          </p>
+        </div>
 
-        Score Breakdown
+        <div className="rounded-xl bg-emerald-500/20 border border-emerald-500/30 px-4 py-2">
 
-      </h2>
+          <p className="text-xs text-emerald-300">
+            Overall
+          </p>
 
-      <div className="space-y-5">
+          <h2 className="text-3xl font-bold text-emerald-400">
+            {overall.toFixed(1)}%
+          </h2>
 
-        {[
-          ["Skill",80],
-          ["Career",90],
-          ["Behavior",76],
-          ["Semantic",88]
-        ].map(([name,value])=>(
-
-          <div key={String(name)}>
-
-            <div className="flex justify-between mb-2">
-
-              <span>{name}</span>
-
-              <span>{value}%</span>
-
-            </div>
-
-            <div className="w-full h-3 bg-slate-800 rounded">
-
-              <div
-                className="bg-green-500 h-3 rounded"
-                style={{
-                  width:`${value}%`
-                }}
-              />
-
-            </div>
-
-          </div>
-
-        ))}
+        </div>
 
       </div>
 
-    </div>
+      <div className="h-[320px]">
 
+        <ResponsiveContainer>
+
+          <RadarChart data={data}>
+
+            <PolarGrid stroke="#334155" />
+
+            <PolarAngleAxis
+              dataKey="subject"
+              tick={{
+                fill: "#CBD5E1",
+              }}
+            />
+
+            <RadarShape
+              dataKey="score"
+              stroke="#22C55E"
+              fill="#22C55E"
+              fillOpacity={0.45}
+            />
+
+          </RadarChart>
+
+        </ResponsiveContainer>
+
+      </div>
+
+    </motion.div>
   );
-
 }

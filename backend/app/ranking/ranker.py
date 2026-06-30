@@ -111,17 +111,45 @@ class CandidateRanker:
             )
 
             final.append({
+    "candidate_id": item["parsed"]["candidate_id"],
+    "rank": 0,  # Updated after sorting
 
-                "candidate_id":
-                    item["parsed"]["candidate_id"],
+    "score": round(final_score, 2),
 
-                "score":
-                    round(final_score, 2),
+    "reasoning": reasoning,
 
-                "reasoning":
-                    reasoning
+    # Candidate Information
+    "profile": {
+        "name": item["parsed"].get("name", ""),
+        "email": item["parsed"].get("email", ""),
+        "experience": item["parsed"].get("experience", 0),
+        "location": item["parsed"].get("location", ""),
+        "open_to_work": item["parsed"].get("open_to_work", False),
+        "notice": item["parsed"].get("notice", 0),
+    },
 
-            })
+    # Skills
+    "skills": item["parsed"].get("skills", []),
+
+    # AI Score Breakdown
+    "breakdown": {
+        "skill": round(item["skill"]["score"], 2),
+        "career": round(item["career"]["score"], 2),
+        "behavior": round(item["behavior"]["score"], 2),
+        "semantic": round(semantic["score"], 2),
+    },
+
+    # AI Confidence (simple average of component scores)
+    "confidence": round(
+        (
+            item["skill"]["score"]
+            + item["career"]["score"]
+            + item["behavior"]["score"]
+            + semantic["score"]
+        ) / 4,
+        2,
+    ),
+})
 
         final.sort(
             key=lambda x: x["score"],

@@ -1,6 +1,8 @@
 "use client";
 
 import { Candidate } from "@/types/candidate";
+import { Search, Eye, Medal } from "lucide-react";
+import { useState } from "react";
 
 interface Props {
   candidates: Candidate[];
@@ -13,62 +15,155 @@ export default function CandidateTable({
   selected,
   onSelect,
 }: Props) {
+  const [query, setQuery] = useState("");
+
+  const filtered = candidates.filter((candidate) =>
+    candidate.candidate_id.toLowerCase().includes(query.toLowerCase())
+  );
+
   return (
-    <div className="bg-slate-900 rounded-2xl p-6">
+    <div className="rounded-3xl border border-slate-800 bg-slate-900/80 backdrop-blur-xl p-6 shadow-xl">
 
-      <h2 className="text-xl font-bold mb-6">
-        Top Ranked Candidates
-      </h2>
+      <div className="flex items-center justify-between mb-6">
 
-      <table className="w-full">
+        <div>
+          <h2 className="text-2xl font-bold">
+            Candidate Ranking
+          </h2>
 
-        <thead>
+          <p className="text-slate-400 text-sm mt-1">
+            AI ranked applicants
+          </p>
+        </div>
 
-          <tr className="text-slate-400 border-b border-slate-700">
+        <div className="relative">
 
-            <th className="py-3">Rank</th>
+          <Search
+            size={18}
+            className="absolute left-3 top-3 text-slate-500"
+          />
 
-            <th>Candidate</th>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search candidate..."
+            className="pl-10 pr-4 py-2 rounded-xl bg-slate-800 border border-slate-700 outline-none"
+          />
 
-            <th>Score</th>
+        </div>
 
-          </tr>
+      </div>
 
-        </thead>
+      <div className="overflow-x-auto">
 
-        <tbody>
+        <table className="w-full">
 
-          {candidates.map((candidate) => (
+          <thead>
 
-            <tr
+            <tr className="border-b border-slate-700 text-slate-400">
 
-              key={candidate.candidate_id}
+              <th className="py-4 text-left">Rank</th>
 
-              onClick={() => onSelect(candidate)}
+              <th className="text-left">Candidate</th>
 
-              className={`cursor-pointer border-b border-slate-800 hover:bg-slate-800 transition ${
-                selected?.candidate_id === candidate.candidate_id
-                  ? "bg-slate-800"
-                  : ""
-              }`}
+              <th className="text-left">Score</th>
 
-            >
+              <th className="text-left">Status</th>
 
-              <td className="py-4">{candidate.rank}</td>
-
-              <td>{candidate.candidate_id}</td>
-
-              <td className="text-green-400 font-bold">
-                {candidate.score}
-              </td>
+              <th className="text-left">Action</th>
 
             </tr>
 
-          ))}
+          </thead>
 
-        </tbody>
+          <tbody>
 
-      </table>
+            {filtered.map((candidate) => (
+
+              <tr
+                key={candidate.candidate_id}
+                onClick={() => onSelect(candidate)}
+                className={`cursor-pointer transition hover:bg-slate-800/60 border-b border-slate-800 ${
+                  selected?.candidate_id === candidate.candidate_id
+                    ? "bg-slate-800"
+                    : ""
+                }`}
+              >
+
+                <td className="py-5">
+
+                  <div className="flex items-center gap-2">
+
+                    <Medal
+                      className="text-yellow-400"
+                      size={18}
+                    />
+
+                    #{candidate.rank}
+
+                  </div>
+
+                </td>
+
+                <td>
+
+                  <div>
+
+                    <p className="font-semibold">
+
+                      {candidate.candidate_id}
+
+                    </p>
+
+                    <p className="text-xs text-slate-400">
+
+                      Resume uploaded
+
+                    </p>
+
+                  </div>
+
+                </td>
+
+                <td>
+
+                  <span className="text-emerald-400 font-bold">
+
+                    {candidate.score}
+
+                  </span>
+
+                </td>
+
+                <td>
+
+                  <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs text-emerald-300">
+
+                    Shortlisted
+
+                  </span>
+
+                </td>
+
+                <td>
+
+                  <button className="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2 transition">
+
+                    <Eye size={16} />
+
+                  </button>
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
   );
